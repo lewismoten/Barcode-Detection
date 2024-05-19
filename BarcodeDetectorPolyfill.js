@@ -71,15 +71,15 @@ if(!NATIVE) {
               rawValue: text,
             };
             resolve([barcode]);
-          }).catch(e => {
+          }).catch(error => {
             if(error.message.includes('No MultiFormat Readers were able to detect the code.')) {
               resolve([]);
             } else {
-              reject(e);
+              reject(error);
             }
           });
-        }).catch(e => {
-          reject(e);
+        }).catch(error => {
+          reject(error);
         });
       });
     }

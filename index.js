@@ -116,9 +116,7 @@ const scanImage = (source) => {
         });
       })
     });
-  }).catch(err => {
-    addError(err);
-  }).finally(() => {
+  }).catch(addError).finally(() => {
     readyToDetect = true;
   });
 }
@@ -129,9 +127,9 @@ const addError = err => {
   }
   const container = document.getElementById('errors');
   container.innerHTML = '';
-  errors.forEach(e => {
+  errors.forEach(error => {
     const item = document.createElement('div');
-    item.innerText = e;
+    item.innerText = error;
     container.prepend(item);
   });
 }
