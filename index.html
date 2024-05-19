@@ -7,10 +7,22 @@
   <body>
     <select id="format"></select>
     <button id="scan">Scan</button>
+    <label for="scan-image">
+      <input type="radio" name="scan-target" id="scan-image" value="image" checked>Image
+    </label>
+    <label for="scan-camera">
+      <input type="radio" name="scan-target" id="scan-camera" value="camera">Video
+    </label>
     <hr>
-    <input id="file" type="file" accept="image/*" style="display:none">
-    <button id="chooseImage">Choose Image</button><br >
-    <img id="previewImage" style="max-width: 200px; max-height: 200px" />
+    <div id="image-picker">
+      <input id="file" type="file" accept="image/*" style="display:none">
+      <button id="chooseImage">Choose Image</button><br >
+      <img id="previewImage" style="max-width: 200px; max-height: 200px" />
+    </div>
+    <div id="video-stream">
+      <video id="video" width="320" height="200" autoplay></video>
+      <canvas id="scanned-video"></canvas>
+    </div>
     <div id="detected">
 
     </div>
