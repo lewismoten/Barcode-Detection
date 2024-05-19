@@ -97,7 +97,7 @@ const scanVideo = () => {
             rawValue,
             image
           });
-          unwarpClipAsURL(video, cornerPoints, boundingBox).then(src => {
+          unwarpClipAsURL(video, cornerPoints, {width: 64, height: 200}).then(src => {
             image.src = src;
             showDetected();
           })

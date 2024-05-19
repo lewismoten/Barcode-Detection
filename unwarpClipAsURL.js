@@ -1,6 +1,10 @@
 // <script src="https://docs.opencv.org/4.5.4/opencv.js" async></script>
 
-const unwarpClipAsURL = async (original, cornerPoints) => {
+const unwarpClipAsURL = async (
+  original,
+  cornerPoints,
+  clamp = {width: original.width, height: original.height}
+) => {
   const [
     topLeft,
     topRight,
@@ -8,14 +12,24 @@ const unwarpClipAsURL = async (original, cornerPoints) => {
     bottomLeft
   ] = cornerPoints;
 
-  const width = Math.sqrt(
+  let width = Math.sqrt(
     (bottomRight.x - bottomLeft.x) ** 2 + 
     (bottomRight.y - bottomLeft.y) ** 2
   );
-  const height = Math.sqrt(
+  let height = Math.sqrt(
     (topRight.x - bottomRight.x) ** 2 +
     (topRight.y - bottomRight.y) ** 2
   );
+
+  if(width > clamp.width) {
+    height *= clamp.width / width;
+    width = clamp.width;
+  }
+
+  if(height > clamp.height) {
+    width *= clamp.height / height;
+    height = clamp.height;
+  }
 
   // copy original image to canvas
   const canvas = document.createElement('canvas');
