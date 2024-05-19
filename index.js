@@ -4,6 +4,7 @@ import {
   dataUrlToBlob,
   blobToDataUrl
 } from './blobby.js';
+import './BarcodeDetectorPolyfill.js';
 
 let barcodes = [];
 let detector;
@@ -16,7 +17,7 @@ const formatMap = {
   aztec: "Aztec",
   code_128: 'Code-128',
   code_39: 'Code-39',
-  data_matric: 'Data Matrix',
+  data_matrix: 'Data Matrix',
   ean_13: 'EAN-13',
   ean_8: 'EAN-8',
   itf: 'Code 2 of 5',
@@ -25,11 +26,6 @@ const formatMap = {
 };
 
 const handleWindowLoad = () => {
-  if (!("BarcodeDetector" in window)) {
-    const detected = document.getElementById('detected');
-    detected.innerText = 'BarcodeDetector not supported. Are you using SSL?';
-    return;
-  }
   stateManager.nextId().then(nextId => id = nextId);
 
   BarcodeDetector.getSupportedFormats().then(supportedFormats => {
