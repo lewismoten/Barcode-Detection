@@ -1,1 +1,18 @@
-<script src="index.js" type="module"></script>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Barcode Detector</title>
+    <script src="index.js" type="module"></script>
+  </head>
+  <body>
+    <select id="format"></select>
+    <button id="scan">Scan</button>
+    <hr>
+    <input id="file" type="file" accept="image/*" style="display:none">
+    <button id="chooseImage">Choose Image</button><br >
+    <img id="previewImage" style="max-width: 200px; max-height: 200px" />
+    <div id="detected">
+
+    </div>
+  </body>
+</html>
