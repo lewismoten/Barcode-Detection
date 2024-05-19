@@ -21,15 +21,9 @@ const unwarpClipAsURL = async (
     (topRight.y - bottomRight.y) ** 2
   );
 
-  if(width > clamp.width) {
-    height *= clamp.width / width;
-    width = clamp.width;
-  }
-
-  if(height > clamp.height) {
-    width *= clamp.height / height;
-    height = clamp.height;
-  }
+  const scaled = scaleToFit(width, height, clamp);
+  width = scaled.width;
+  height = scaled.height;
 
   // copy original image to canvas
   const canvas = document.createElement('canvas');
@@ -87,6 +81,35 @@ const unwarpClipAsURL = async (
   canvas.height = height;
   ctx.putImageData(imageData, 0, 0);
   return canvas.toDataURL();
+}
+
+const scaleToFit = (width, height, target) => {
+  const ratio = width / height;
+
+  if(width > target.width) {
+    // too wide
+    height *= target.width / width;
+    width = target.width;
+  }
+
+  if(height > target.height) {
+    // too tall
+    width *= target.height / height;
+    height = target.height;
+  }
+
+  if(width < target.width && height < target.height) {
+    // too small
+    const tempHeight = height * (target.width / width);
+    if(tempHeight <= target.height) {
+      height = tempHeight;
+      width = target.width;
+    } else {
+      width *= target.height / height;
+      height = target.height;
+    }
+  }
+  return {width, height};
 }
 
 export default unwarpClipAsURL;

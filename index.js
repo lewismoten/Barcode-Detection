@@ -1,14 +1,16 @@
 import unwarpClipAsURL from './unwarpClipAsURL.js';
+import * as stateManager from './stateManager.js';
+import {
+  dataUrlToBlob,
+  blobToDataUrl
+} from './blobby.js';
 
-let frameId;
-let intervalId;
 let barcodes = [];
 let detector;
 let readyToDetect = true;
-let detected = [];
 let scanStart = performance.now();
-let selectedBarcode;
-
+let selectedId;
+let id = 0;
 const formatMap = {
   qr_code: 'QR Code',
   aztec: "Aztec",
@@ -22,28 +24,13 @@ const formatMap = {
   upc_e: 'UPC-E'
 };
 
-const addSampleImage = (len = 1) => {
-  const image = new Image();
-  image.src = 'detected-qr-code-hello.png';
-  const words = "these are some words to use in a sentence that is random and can go on and on in a silly sort of way if you want".split(' ');
-  const values = [];
-  while(values.length < len) values.push(words[Math.floor(Math.random() * words.length)]);
-  detected.push({
-    format: 'qr_code',
-    rawValue: values.join(" "),
-    image
-  });
-}
 const handleWindowLoad = () => {
-  addSampleImage();
-  addSampleImage(500);
-  addSampleImage();
-
   if (!("BarcodeDetector" in window)) {
     const detected = document.getElementById('detected');
     detected.innerText = 'BarcodeDetector not supported. Are you using SSL?';
     return;
   }
+  stateManager.nextId().then(nextId => id = nextId);
 
   BarcodeDetector.getSupportedFormats().then(supportedFormats => {
     detector = new BarcodeDetector({ formats: supportedFormats })
@@ -60,15 +47,18 @@ const handleWindowLoad = () => {
   document.getElementById('barcode-info-back').addEventListener('click', () => {
     document.getElementById('detected').classList.add('is-visible');
     document.getElementById('barcode-info').classList.remove('is-visible');
-    selectedBarcode = undefined;
+    selectedId = undefined;
     showDetected();
   });
   document.getElementById('barcode-info-copy').addEventListener('click', () => {
-    navigator.clipboard.writeText(detected[selectedBarcode].rawValue);
+    stateManager.selectOne(selectedId).then(barcode => {
+      navigator.clipboard.writeText(barcode.rawValue);
+    });
   });
   document.getElementById('barcode-info-delete').addEventListener('click', () => {
-    detected.splice(selectedBarcode, 1);
-    document.getElementById('barcode-info-back').click();
+    stateManager.deleteOne(selectedId).then(() => {
+      document.getElementById('barcode-info-back').click();
+    });
   });
 
   navigator.mediaDevices.getUserMedia({ 
@@ -81,41 +71,52 @@ const handleWindowLoad = () => {
     const video = document.getElementById('video');
     video.srcObject = stream;
     video.play();
-    frameId = window.requestAnimationFrame(drawVideo);
-    // lower numbers cause barcodes to be misaligned with video
-    intervalId = window.setInterval(scanVideo, 1000 / 60);
+    window.requestAnimationFrame(drawVideo);
+    window.setInterval(scanVideo, 1000 / 60);
   });
 
   showDetected();
 
 }
-const displayBarcode = index => {
-  selectedBarcode = index;
-  const barcode = detected[index];
-  document.getElementById('detected').classList.remove('is-visible')
-  const container = document.getElementById('barcode-info');
-  container.classList.add('is-visible');
-  document.getElementById('barcode-info-image').src = barcode.image.src;
-  document.getElementById('barcode-info-format').innerText = formatMap[barcode.format] ?? barcode.format;
-  document.getElementById('raw-data').innerText = barcode.rawValue;
 
+const displayBarcode = id => {
+  stateManager.selectOne(id).then(({imageBlob, format, rawValue}) => {
+    selectedId = id;
+    document.getElementById('detected').classList.remove('is-visible')
+    const container = document.getElementById('barcode-info');
+    container.classList.add('is-visible');
+    const image = document.getElementById('barcode-info-image');
+    image.alt = format;  
+    if(imageBlob) {
+      blobToDataUrl(imageBlob).then(url => {
+        image.src = url;
+        URL.revokeObjectURL(url);
+      });
+    } else {
+      delete image.src;
+    }
+    document.getElementById('barcode-info-format').innerText = formatMap[format] ?? format;
+    document.getElementById('raw-data').innerText = rawValue;
+  });
 }
 const scanImage = (source) => {
   detector.detect(source).then(codes => {
     barcodes = codes;
     barcodes.forEach(({ format, cornerPoints, rawValue, boundingBox }) => {
-      if(!detected.find(d => d.rawValue === rawValue)) {
-        const image = new Image();
-        detected.push({
+      stateManager.hasValue('rawValue', rawValue).then(hasValue => {
+        if(hasValue) return;
+        const item = {
+          id: ++id,
           format,
           rawValue,
-          image
+        };
+        stateManager.insertOne(item).then(() => {
+          unwarpClipAsURL(source, cornerPoints, {width: 64, height: 200}).then(imageSrc => {
+            const imageBlob = dataUrlToBlob(imageSrc);
+            stateManager.updateOne(id, {imageBlob}).then(showDetected);
+          });
         });
-        unwarpClipAsURL(source, cornerPoints, {width: 64, height: 200}).then(src => {
-          image.src = src;
-          showDetected();
-        })
-      }
+      })
     });
   }).catch(err => {
     console.log(err);
@@ -133,22 +134,32 @@ const scanVideo = () => {
 const showDetected = () => {
   const container = document.getElementById('detected');
   container.innerHTML = '';
-  detected.forEach(({image, rawValue, format}, i) => {
-    const div = document.createElement('div');
-    div.className = 'list-item'
-    div.addEventListener('click', () => displayBarcode(i));
-    container.appendChild(div);
-    const imageContainer = document.createElement('span');
-    imageContainer.className = 'barcode';
-    imageContainer.append(image);
-    div.append(imageContainer);
-    image.alt = format;
-    const span = document.createElement('span');
-    span.className = 'long-text';
-    span.innerText = rawValue;
+  stateManager.selectAll().then(detected => {
+    detected.forEach(({id, imageBlob, rawValue, format}, i) => {
+      const div = document.createElement('div');
+      div.className = 'list-item'
+      div.addEventListener('click', () => displayBarcode(id));
+      container.appendChild(div);
+      const imageContainer = document.createElement('span');
+      imageContainer.className = 'barcode';
+      div.append(imageContainer);
+      if(imageBlob) {
+        const image = new Image();
+        image.alt = format;  
+        imageContainer.append(image);
+        blobToDataUrl(imageBlob).then(url => {
+          image.src = url;
+          URL.revokeObjectURL(url);
+        });
+      }
+      const span = document.createElement('span');
+      span.className = 'long-text';
+      span.innerText = rawValue;
+  
+      div.append(span);
+    })
+  });
 
-    div.append(span);
-  })
 }
 const drawVideo = () => {
   const video = document.getElementById('video');
@@ -180,7 +191,7 @@ const drawVideo = () => {
       ctx.stroke();
     });
   }
-  frameId = window.requestAnimationFrame(drawVideo);
+  window.requestAnimationFrame(drawVideo);
 }
 
 const handleImageChange = file => {
