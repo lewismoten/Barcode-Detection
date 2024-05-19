@@ -1,9 +1,12 @@
+import unwarpClipAsURL from './unwarpClipAsURL.js';
+
 let selectedFormat = 'qr_code';
 let frameId;
 let intervalId;
 let barcodes = [];
 let detector;
 let readyToDetect = true;
+let detected = [];
 
 const handleWindowLoad = () => {
   if (!("BarcodeDetector" in window)) {
@@ -84,10 +87,38 @@ const scanVideo = () => {
   const video = document.getElementById('video');
   if(readyToDetect && video && !video.paused && video.srcObject) {
     readyToDetect = false;
-    detector.detect(video).then(codes => barcodes = codes).catch(err => {
+    detector.detect(video).then(codes => {
+      barcodes = codes;
+      barcodes.forEach(({ format, cornerPoints, rawValue, boundingBox }) => {
+        if(!detected.find(d => d.rawValue === rawValue)) {
+          const image = new Image();
+          detected.push({
+            format,
+            rawValue,
+            image
+          });
+          unwarpClipAsURL(video, cornerPoints, boundingBox).then(src => {
+            image.src = src;
+            showDetected();
+          })
+        }
+      });
+    }).catch(err => {
       console.log(err);
     }).finally(() => readyToDetect = true);
   }
+}
+
+const showDetected = () => {
+  const container = document.getElementById('detected');
+  container.innerHTML = '';
+  detected.forEach(({image, rawValue, format}) => {
+    const div = document.createElement('div');
+    container.appendChild(div);
+    div.append(image);
+    image.alt = format;
+    div.append(rawValue);
+  })
 }
 const drawVideo = () => {
   const video = document.getElementById('video');
@@ -96,13 +127,7 @@ const drawVideo = () => {
   canvas.height = video.height;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  if(barcodes.length === 0) {
-    document.getElementById('detected').innerText = 'No barcodes detected.';
-  } else {
-    document.getElementById('detected').innerText = barcodes.reduce((text, barcode, i) => {
-      if(i !== 0) text += "\n";
-      return text + barcode.rawValue;
-    }, "");
+  if(barcodes.length !== 0) {
     barcodes.forEach(({cornerPoints}) => {
       ctx.lineWidth = 3;
       ctx.strokeStyle = 'Yellow';
@@ -115,10 +140,6 @@ const drawVideo = () => {
       ctx.stroke();
     });
   }
-
-  // barcodes.forEach(barcode => {
-  //   context.moveTo()
-  // });
   frameId = window.requestAnimationFrame(drawVideo);
 }
 const scan = () => {
