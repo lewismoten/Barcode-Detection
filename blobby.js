@@ -18,3 +18,29 @@ export const blobToDataUrl = (blob) => {
     reader.readAsDataURL(blob);
 });
 }
+
+export const imageToImageData = image => {
+  const canvas = document.createElement('canvas');
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+  return ctx.getImageData(0, 0, canvas.width, canvas.height);
+}
+
+export const imageToImage = image => {
+  return new Promise((resolve, reject) => {
+    const { width, height} = image;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(image, 0, 0, width, height);
+    const img = new Image(width, height);
+    img.addEventListener('load', () => {
+
+      resolve(img);
+    })
+    img.src = canvas.toDataURL();
+  });
+}
