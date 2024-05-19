@@ -1,31 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title>Barcode Detector</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="index.js" type="module"></script>
     <script src="https://docs.opencv.org/4.5.4/opencv.js" async></script>
+    <link rel="stylesheet" href="style.css" type="text/css" />
   </head>
   <body>
-    <select id="format"></select>
-    <button id="scan">Scan</button>
-    <label for="scan-image">
-      <input type="radio" name="scan-target" id="scan-image" value="image" checked>Image
-    </label>
-    <label for="scan-camera">
-      <input type="radio" name="scan-target" id="scan-camera" value="camera">Video
-    </label>
-    <hr>
-    <div id="image-picker">
-      <input id="file" type="file" accept="image/*" style="display:none">
-      <button id="chooseImage">Choose Image</button><br >
-      <img id="previewImage" style="max-width: 200px; max-height: 200px" />
-    </div>
-    <div id="video-stream">
+    <div>
       <video id="video" width="320" height="200" autoplay style="display:none"></video>
-      <canvas id="scanned-video"></canvas>
+      <canvas class="video-feed" id="scanned-video" width="320" height="200"></canvas>
     </div>
-    <div id="detected">
-
+    <div>
+      <input id="file" type="file" accept="image/*" style="display:none">
+      <button class="big-button" id="chooseImage">Scan Image</button>
+    </div>
+    <div class="list is-visible" id="detected"></div>
+    <div class="barcode-info" id="barcode-info">
+      <image id="barcode-info-image" />
+      <div id="barcode-info-format"></div>
+      <textarea class="raw-data" id="raw-data"></textarea>
+      <div class="actions">
+        <button id="barcode-info-delete">Delete</button>
+        <button id="barcode-info-copy">Copy</button>
+      </div>
+      <br>
+      <button class="big-button" id="barcode-info-back">Back</button>
     </div>
   </body>
 </html>

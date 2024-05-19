@@ -9,7 +9,9 @@ const options = {
 
 const contentTypes = {
   js: 'text/javascript',
-  html: 'text/html'
+  html: 'text/html',
+  css: 'text/css',
+  png: 'image/png'
 }
 
 const server = https.createServer(options, ({url}, res) => {
