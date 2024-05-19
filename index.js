@@ -12,6 +12,8 @@ let readyToDetect = true;
 let scanStart = performance.now();
 let selectedId;
 let id = 0;
+let errors = [];
+
 const formatMap = {
   qr_code: 'QR Code',
   aztec: "Aztec",
@@ -115,9 +117,22 @@ const scanImage = (source) => {
       })
     });
   }).catch(err => {
-    console.log(err);
+    addError(err);
   }).finally(() => {
     readyToDetect = true;
+  });
+}
+const addError = err => {
+  errors.unshift(err);
+  if(errors.length > 5) {
+    errors.splice(5);
+  }
+  const container = document.getElementById('errors');
+  container.innerHTML = '';
+  errors.forEach(e => {
+    const item = document.createElement('div');
+    item.innerText = e;
+    container.prepend(item);
   });
 }
 const scanVideo = () => {
