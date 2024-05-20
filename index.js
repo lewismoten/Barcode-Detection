@@ -64,9 +64,13 @@ const handleWindowLoad = () => {
     .finally(() => {
       addError(`next id: ${id}`);
     });
+  addError('getting supported barcodes');
+
   BarcodeDetector.getSupportedFormats().then(supportedFormats => {
+    addError('got supported barcodes');
     detector = new BarcodeDetector({ formats: supportedFormats })
   }).catch(e => addError(`Failed to get supported barcode formats: ${e}`));
+
 
   document.getElementById('chooseImage').addEventListener('click', () => {
     document.getElementById('file').click();
@@ -93,6 +97,7 @@ const handleWindowLoad = () => {
     }).catch(e => addError(`Failed to delete record: ${e}`));
   });
 
+  addError('wire up video events');
   const video = document.getElementById('video');
   video.addEventListener('play', () => {
     addError('Video is playing');
