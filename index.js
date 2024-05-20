@@ -77,8 +77,8 @@ const handleWindowLoad = () => {
   });
   navigator.mediaDevices.getUserMedia({ 
     video: {
-      width: { exact: 1200 },
-      height: { exact: 1200 },
+      width: { exact: video.width },
+      height: { exact: video.height },
       frameRate: { ideal: 15 },
       facingMode: 'environment'
     } 
@@ -209,7 +209,11 @@ const showDetected = () => {
   }).catch(e => addError(`Failed to selectAll: ${e}`));
 
 }
-const scalePoints = ({x, y}) => ({x: x * 1/3, y: y * 1/3});
+const scalePoints = ({x, y}) => {
+  const ratioX = canvas.width / video.width;
+  const ratioY = canvas.height / video.height;
+  ({x: x * ratioX, y: y * ratioY})
+};
 
 const drawVideo = () => {
   const video = document.getElementById('video');
