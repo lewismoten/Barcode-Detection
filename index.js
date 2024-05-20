@@ -77,10 +77,10 @@ const handleWindowLoad = () => {
   });
   navigator.mediaDevices.getUserMedia({ 
     video: {
-      width: { exact: 200 },
-      height: { exact: 200 },
+      width: { exact: 600 },
+      height: { exact: 600 },
       frameRate: { ideal: 15 },
-      facingMode: 'environment' // or user/environment
+      facingMode: 'environment'
     } 
   }).then((stream) => {
     video.srcObject = stream;
@@ -209,6 +209,8 @@ const showDetected = () => {
   }).catch(e => addError(`Failed to selectAll: ${e}`));
 
 }
+const scalePoints = ({x, y}) => ({x: x * 1/3, y: y * 1/3});
+
 const drawVideo = () => {
   const video = document.getElementById('video');
   const canvas = document.getElementById('scanned-video');
@@ -216,10 +218,10 @@ const drawVideo = () => {
     width,
     height
   } = video;
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = 200;
+  canvas.height = 200;
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, width, height);
+  ctx.drawImage(video, 0, 0, 200, 200);
   if(barcodes.length === 0) {
     const duration = 5000;
     const progress = ((performance.now() - scanStart) % duration) / duration;
@@ -235,7 +237,7 @@ const drawVideo = () => {
       ctx.lineWidth = 3;
       ctx.strokeStyle = 'Yellow';
       ctx.beginPath();
-      cornerPoints.forEach((point, i) => {
+      cornerPoints.map(scalePoints).forEach((point, i) => {
         if(i === 0) ctx.moveTo(point.x, point.y);
         else ctx.lineTo(point.x, point.y);
       });

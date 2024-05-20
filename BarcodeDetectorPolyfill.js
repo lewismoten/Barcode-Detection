@@ -4,8 +4,8 @@ import {
   BrowserMultiFormatReader
 } from 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.0/+esm'
 import { imageToImage, imageToDataURL } from './blobby.js';
-// const NATIVE = ("BarcodeDetector" in window);
-const NATIVE = false;
+const NATIVE = ("BarcodeDetector" in window);
+// const NATIVE = false;
 
 if(!NATIVE) {
 
