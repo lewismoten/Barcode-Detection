@@ -70,6 +70,21 @@ const handleWindowLoad = () => {
     }).catch(e => addError(`Failed to delete record: ${e}`));
   });
 
+  const video = document.getElementById('video');
+  video.addEventListener('play', () => {
+    addError('Video is playing');
+    frameId = window.requestAnimationFrame(drawVideo);
+    intervalId = window.setInterval(scanVideo, 1000 / 60);
+  });
+  video.addEventListener('pause', () => {
+    addError('Video is paused');
+    window.cancelAnimationFrame(frameId);
+    window.clearInterval(intervalId);
+    frameId = undefined;
+    intervalId = undefined;
+  });
+
+  addError('requesting stream');
   navigator.mediaDevices.getUserMedia({ 
     video: {
       width: { ideal: 320 },
@@ -77,21 +92,9 @@ const handleWindowLoad = () => {
       frameRate: { ideal: 15 }
     } 
   }).then((stream) => {
-    const video = document.getElementById('video');
-    video.addEventListener('play', () => {
-      addError('Video is playing');
-      frameId = window.requestAnimationFrame(drawVideo);
-      intervalId = window.setInterval(scanVideo, 1000 / 60);
-    });
-    video.addEventListener('pause', () => {
-      addError('Video is paused');
-      window.cancelAnimationFrame(frameId);
-      window.clearInterval(intervalId);
-      frameId = undefined;
-      intervalId = undefined;
-    });
+    addError('got stream');
     video.srcObject = stream;
-
+    addError('about to play');
     video.play();
   }).catch(e => addError(`Unable to getUserMedia: ${e}`));
 
@@ -137,7 +140,10 @@ const scanImage = (source) => {
         stateManager.insertOne(item).then(() => {
           unwarpClipAsURL(source, cornerPoints, {width: 64, height: 200}).then(imageSrc => {
             const imageBlob = dataUrlToBlob(imageSrc);
-            stateManager.updateOne(id, {imageBlob}).then(showDetected);
+            stateManager
+              .updateOne(id, {imageBlob})
+              .then(showDetected)
+              .catch(e => addError(`Failed to update image: ${e}`));
           }).catch(e => addError(`Failed to unwarp clip: ${e}`));
         }).catch(e => addError(`Failed to insert: ${e}`));
       }).catch(e => addError(`Failed to check if value exists: ${e}`))
