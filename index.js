@@ -155,7 +155,11 @@ const startTimers = () => {
   if(intervalId === undefined) {
     addError("starting interval");
     readyToDetect = true;
-    intervalId = window.setInterval(scanVideo, 100);
+    intervalId = window.setInterval(() => {
+      addError("Interval");
+      scanVideo();
+    }, 100);
+    scanVideo();
   }
 }
 const stopTimers = () => {
