@@ -57,20 +57,13 @@ const formatMap = {
 };
 
 const handleWindowLoad = () => {
-  addError('window load');
   stateManager.nextId()
     .then(nextId => id = nextId)
-    .catch(e => addError(`Failed to get next id: ${e}`))
-    .finally(() => {
-      addError(`next id: ${id}`);
-    });
-  addError('getting supported barcodes');
+    .catch(e => addError(`Failed to get next id: ${e}`));
 
   BarcodeDetector.getSupportedFormats().then(supportedFormats => {
-    addError('got supported barcodes');
     detector = new BarcodeDetector({ formats: supportedFormats })
   }).catch(e => addError(`Failed to get supported barcode formats: ${e}`));
-
 
   document.getElementById('chooseImage').addEventListener('click', () => {
     document.getElementById('file').click();
@@ -99,23 +92,10 @@ const handleWindowLoad = () => {
 
   addError('wire up video events');
   const video = document.getElementById('video');
-  video.addEventListener('playing', () => {
-    addError('Video is playing');
-    startTimers();
-  })
-  video.addEventListener('play', () => {
-    addError('Video is about to play');
-    startTimers();
-  });
   video.addEventListener('canplay', () => {
-    addError('Video can now play, but not all content is available yet');
-    startTimers();
+    addError('Can play video now');
     video.play();
-  })
-  video.addEventListener('canplaythrough', () => {
-    addError('Video can now play through to the end.');
     startTimers();
-    video.play();
   })
   video.addEventListener('pause', () => {
     addError('Video is paused');
@@ -124,16 +104,6 @@ const handleWindowLoad = () => {
   video.addEventListener('error', e => {
     addError(`Video Error: ${e}`);
   });
-  // video.addEventListener('timeupdate', e => {
-  //   addError(`Video Timeupdate: ${video.currentTime}`);
-  // });
-  videoEvents.forEach(eventName => {
-    ///addError(`add listener: ${eventName}`)
-    video.addEventListener(eventName, () => {
-      addError(`Video Event: ${eventName}`);
-    });
-  });
-  addError('requesting stream');
   navigator.mediaDevices.getUserMedia({ 
     video: {
       width: { ideal: 320 },
@@ -143,6 +113,7 @@ const handleWindowLoad = () => {
   }).then((stream) => {
     addError('Loading the stream');
     video.srcObject = stream;
+    addError('Stream assigned to video element');
   }).catch(e => addError(`Unable to getUserMedia: ${e}`));
 
   showDetected();
