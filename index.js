@@ -77,8 +77,8 @@ const handleWindowLoad = () => {
   });
   navigator.mediaDevices.getUserMedia({ 
     video: {
-      width: { exact: 600 },
-      height: { exact: 600 },
+      width: { exact: 1200 },
+      height: { exact: 1200 },
       frameRate: { ideal: 15 },
       facingMode: 'environment'
     } 
@@ -214,10 +214,6 @@ const scalePoints = ({x, y}) => ({x: x * 1/3, y: y * 1/3});
 const drawVideo = () => {
   const video = document.getElementById('video');
   const canvas = document.getElementById('scanned-video');
-  const {
-    width,
-    height
-  } = video;
   canvas.width = 200;
   canvas.height = 200;
   const ctx = canvas.getContext('2d');
@@ -230,7 +226,7 @@ const drawVideo = () => {
     ctx.strokeStyle = 'red';
     ctx.beginPath();
     ctx.moveTo(0, scanLine);
-    ctx.lineTo(width, scanLine);
+    ctx.lineTo(canvas.width, scanLine);
     ctx.stroke();
   } else {
     barcodes.forEach(({cornerPoints}) => {
