@@ -14,6 +14,8 @@ let scanStart = performance.now();
 let selectedId;
 let id = 0;
 let errors = [];
+let intervalCount = 0;
+let detectCount = 0;
 
 const formatMap = {
   qr_code: 'QR Code',
@@ -100,6 +102,8 @@ const displayBarcode = id => {
 }
 const scanImage = (source) => {
   detector.detect(source).then(codes => {
+    detectCount++;
+    document.getElementById('detect-count').innerText = detectCount;
     barcodes = codes;
     barcodes.forEach(({ format, cornerPoints, rawValue, boundingBox }) => {
       stateManager.hasValue('rawValue', rawValue).then(hasValue => {
@@ -138,6 +142,8 @@ const addError = err => {
   });
 }
 const scanVideo = () => {
+  intervalCount++;
+  document.getElementById('interval-count').innerText = intervalCount;
   const video = document.getElementById('video');
   if(readyToDetect && video && !video.paused && video.srcObject) {
     readyToDetect = false;
