@@ -16,6 +16,8 @@ let id = 0;
 let errors = [];
 let intervalCount = 0;
 let detectCount = 0;
+let frameId;
+let intervalId;
 
 const formatMap = {
   qr_code: 'QR Code',
@@ -70,10 +72,20 @@ const handleWindowLoad = () => {
     } 
   }).then((stream) => {
     const video = document.getElementById('video');
+    video.addEventListener('play', () => {
+      addError('Video is playing');
+      frameId = window.requestAnimationFrame(drawVideo);
+      intervalId = window.setInterval(scanVideo, 1000 / 60);
+    });
+    video.addEventListener('pause', () => {
+      addError('Video is paused');
+      window.cancelAnimationFrame(frameId);
+      window.clearInterval(intervalId);
+      frameId = undefined;
+      intervalId = undefined;
+    });
     video.srcObject = stream;
     video.play();
-    window.requestAnimationFrame(drawVideo);
-    window.setInterval(scanVideo, 1000 / 60);
   });
 
   showDetected();
@@ -212,7 +224,9 @@ const drawVideo = () => {
       ctx.stroke();
     });
   }
-  window.requestAnimationFrame(drawVideo);
+  if(frameId) {
+    frameId = window.requestAnimationFrame(drawVideo);
+  }
 }
 
 const handleImageChange = file => {
