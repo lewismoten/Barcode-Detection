@@ -235,7 +235,7 @@ const addError = err => {
 }
 const scanVideo = () => {
   intervalCount++;
-  document.getElementById('interval-count').innerText = intervalCount;
+  document.getElementById('interval-count').innerText = `Ready: ${readyToDetect}: ${intervalCount}`;
   const video = document.getElementById('video');
   if(readyToDetect) {
     readyToDetect = false;
