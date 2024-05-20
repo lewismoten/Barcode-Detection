@@ -86,8 +86,9 @@ const handleWindowLoad = () => {
       intervalId = undefined;
     });
     video.srcObject = stream;
+
     video.play();
-  });
+  }).catch(e => addError(`Unable to getUserMedia: ${e}`));
 
   showDetected();
 
