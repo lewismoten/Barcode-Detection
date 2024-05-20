@@ -104,6 +104,10 @@ const handleWindowLoad = () => {
     frameId = window.requestAnimationFrame(drawVideo);
     intervalId = window.setInterval(scanVideo, 1000 / 60);
   });
+  video.addEventListener('canplaythrough', () => {
+    addError('Video can now play.');
+    video.play();
+  })
   video.addEventListener('pause', () => {
     addError('Video is paused');
     window.cancelAnimationFrame(frameId);
@@ -131,10 +135,8 @@ const handleWindowLoad = () => {
       frameRate: { ideal: 15 }
     } 
   }).then((stream) => {
-    addError('got stream');
+    addError('Loading the stream');
     video.srcObject = stream;
-    addError('about to play');
-    video.play();
   }).catch(e => addError(`Unable to getUserMedia: ${e}`));
 
   showDetected();
