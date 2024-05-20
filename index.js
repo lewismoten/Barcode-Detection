@@ -84,6 +84,8 @@ const handleWindowLoad = () => {
     } 
   }).then((stream) => {
     video.srcObject = stream;
+    const settings = stream.getVideoTracks()[0].getSettings();
+    addError(`size: ${settings.width}x${settings.height} aspectRatio: ${settings.aspectRatio} frameRate: ${settings.frameRate} resizeMode: ${settings.resizeMode}`)
     stream.getTracks().forEach((track, i) => {
       addError(`Track ${i}: ${track.label} (${track.kind}) ${track.readyState} enabled: ${track.enabled}`);
     })
@@ -210,10 +212,14 @@ const showDetected = () => {
 const drawVideo = () => {
   const video = document.getElementById('video');
   const canvas = document.getElementById('scanned-video');
-  canvas.width = video.width;
-  canvas.height = video.height;
+  const {
+    width,
+    height
+  } = video;
+  canvas.width = width;
+  canvas.height = height;
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(video, 0, 0, width, height);
   if(barcodes.length === 0) {
     const duration = 5000;
     const progress = ((performance.now() - scanStart) % duration) / duration;
@@ -222,7 +228,7 @@ const drawVideo = () => {
     ctx.strokeStyle = 'red';
     ctx.beginPath();
     ctx.moveTo(0, scanLine);
-    ctx.lineTo(canvas.width, scanLine);
+    ctx.lineTo(width, scanLine);
     ctx.stroke();
   } else {
     barcodes.forEach(({cornerPoints}) => {
