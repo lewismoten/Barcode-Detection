@@ -106,8 +106,8 @@ const handleWindowLoad = () => {
   });
   navigator.mediaDevices.getUserMedia({ 
     video: {
-      width: { ideal: 320 },
-      height: { ideal: 200 },
+      width: { exact: 320 },
+      height: { exact: 200 },
       frameRate: { ideal: 15 },
       facingMode: 'environment' // or user/environment
     } 
