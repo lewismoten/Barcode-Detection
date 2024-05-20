@@ -2,8 +2,7 @@ import unwarpClipAsURL from './unwarpClipAsURL.js';
 import * as stateManager from './stateManager.js';
 import {
   dataUrlToBlob,
-  blobToDataUrl,
-  imageToDataURL
+  blobToDataUrl
 } from './blobby.js';
 import './BarcodeDetectorPolyfill.js';
 
@@ -14,34 +13,8 @@ let scanStart = performance.now();
 let selectedId;
 let id = 0;
 let errors = [];
-let intervalCount = 0;
-let detectCount = 0;
-let detectResultCount = 0;
 let frameId;
 let intervalId;
-
-const videoEvents = [
-  'audioprocess',
-  // 'canplay',
-  // 'canplaythrough',
-  'complete',
-  'durationchange',
-  'emptied',
-  'ended',
-  'loadeddata',
-  'loadedmetadata',
-  'loadstart',
-  // 'playing',
-  'progress',
-  'ratechange',
-  'seeked',
-  'seeking',
-  'stalled',
-  'suspended',
-  // 'timeupdate',
-  'volumechange',
-  'waiting'
-];
 
 const formatMap = {
   qr_code: 'QR Code',
@@ -90,15 +63,13 @@ const handleWindowLoad = () => {
     }).catch(e => addError(`Failed to delete record: ${e}`));
   });
 
-  addError('wire up video events');
   const video = document.getElementById('video');
   video.addEventListener('canplay', () => {
-    addError('Can play video now');
+    addError(`Video Size ${video.width}x${video.height}`);
     video.play();
     startTimers();
   })
   video.addEventListener('pause', () => {
-    addError('Video is paused');
     stopTimers();
   });
   video.addEventListener('error', e => {
@@ -112,21 +83,10 @@ const handleWindowLoad = () => {
       facingMode: 'environment' // or user/environment
     } 
   }).then((stream) => {
-    addError('Loading the stream');
     video.srcObject = stream;
-    // onactive
-    // onaddtrack
-    // oninactive
-    // onremovetrack
-    // console.log(stream.getTracks());
     stream.getTracks().forEach((track, i) => {
       addError(`Track ${i}: ${track.label} (${track.kind}) ${track.readyState} enabled: ${track.enabled}`);
-      // track.onended
-      // track.onmute
-      // track.onunmute
-      // track.oncapturehandlechange
     })
-    addError('Stream assigned to video element');
   }).catch(e => addError(`Unable to getUserMedia: ${e}`));
 
   showDetected();
@@ -137,14 +97,12 @@ const startTimers = () => {
     frameId = window.requestAnimationFrame(drawVideo);
   }
   if(intervalId === undefined) {
-    addError("starting interval");
     readyToDetect = true;
     intervalId = window.setInterval(scanVideo, 100);
     scanVideo();
   }
 }
 const stopTimers = () => {
-  addError("stopping timers");
   readyToDetect = false;
   window.cancelAnimationFrame(frameId);
   window.clearInterval(intervalId);
@@ -172,11 +130,7 @@ const displayBarcode = id => {
   }).catch(e => addError(`Failed to select record: ${e}`));
 }
 const scanImage = (source) => {
-  detectCount++;
-  document.getElementById('detect-count').innerText = detectCount;
   detector.detect(source).then(codes => {
-    detectResultCount++;
-    document.getElementById('detect-result-count').innerText = detectResultCount;
     barcodes = codes;
     barcodes.forEach(({ format, cornerPoints, rawValue, boundingBox }) => {
       stateManager.hasValue('rawValue', rawValue).then(hasValue => {
@@ -201,10 +155,7 @@ const scanImage = (source) => {
     readyToDetect = true;
   });
 }
-let e1 = 0;
 const addError = err => {
-  e1++;
-  if(e1 === 20) console.error(err);
   errors.unshift(err);
   if(errors.length > 20) {
     errors.splice(20);
@@ -213,13 +164,11 @@ const addError = err => {
   container.innerHTML = '';
   errors.forEach((error, i) => {
     const item = document.createElement('div');
-    item.innerText = `Error ${i}: ${error}`;
+    item.innerText = error;
     container.prepend(item);
   });
 }
 const scanVideo = () => {
-  intervalCount++;
-  document.getElementById('interval-count').innerText = `Ready: ${readyToDetect}: ${intervalCount}`;
   const video = document.getElementById('video');
   if(readyToDetect) {
     readyToDetect = false;

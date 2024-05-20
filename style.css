@@ -12,6 +12,7 @@ body {
 }
 #video {
   background-color: purple;
+  display: none;
 }
 .video-feed {
   width: 320;
