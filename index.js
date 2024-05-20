@@ -22,8 +22,8 @@ let intervalId;
 
 const videoEvents = [
   'audioprocess',
-  'canplay',
-  'canplaythrough',
+  // 'canplay',
+  // 'canplaythrough',
   'complete',
   'durationchange',
   'emptied',
@@ -31,7 +31,7 @@ const videoEvents = [
   'loadeddata',
   'loadedmetadata',
   'loadstart',
-  'playing',
+  // 'playing',
   'progress',
   'ratechange',
   'seeked',
@@ -99,32 +99,34 @@ const handleWindowLoad = () => {
 
   addError('wire up video events');
   const video = document.getElementById('video');
-  video.addEventListener('play', () => {
+  video.addEventListener('playing', () => {
     addError('Video is playing');
+    startTimers();
+  })
+  video.addEventListener('play', () => {
+    addError('Video is about to play');
+    startTimers();
   });
+  video.addEventListener('canplay', () => {
+    addError('Video can now play, but not all content is available yet');
+    startTimers();
+    video.play();
+  })
   video.addEventListener('canplaythrough', () => {
-    addError('Video can now play.');
-    if(frameId !== undefined) {
-      frameId = window.requestAnimationFrame(drawVideo);
-    }
-    if(intervalId !== undefined) {
-      intervalId = window.setInterval(scanVideo, 1000 / 60);
-    }
+    addError('Video can now play through to the end.');
+    startTimers();
     video.play();
   })
   video.addEventListener('pause', () => {
     addError('Video is paused');
-    window.cancelAnimationFrame(frameId);
-    window.clearInterval(intervalId);
-    frameId = undefined;
-    intervalId = undefined;
+    stopTimers();
   });
   video.addEventListener('error', e => {
     addError(`Video Error: ${e}`);
   });
-  video.addEventListener('timeupdate', e => {
-    addError(`Video Timeupdate: ${video.currentTime}`);
-  });
+  // video.addEventListener('timeupdate', e => {
+  //   addError(`Video Timeupdate: ${video.currentTime}`);
+  // });
   videoEvents.forEach(eventName => {
     ///addError(`add listener: ${eventName}`)
     video.addEventListener(eventName, () => {
@@ -146,7 +148,20 @@ const handleWindowLoad = () => {
   showDetected();
 
 }
-
+const startTimers = () => {
+  if(frameId === undefined) {
+    frameId = window.requestAnimationFrame(drawVideo);
+  }
+  if(intervalId === undefined) {
+    intervalId = window.setInterval(scanVideo, 1000 / 60);
+  }
+}
+const stopTimers = () => {
+  window.cancelAnimationFrame(frameId);
+  window.clearInterval(intervalId);
+  frameId = undefined;
+  intervalId = undefined;
+}
 const displayBarcode = id => {
   stateManager.selectOne(id).then(({imageBlob, format, rawValue}) => {
     selectedId = id;
