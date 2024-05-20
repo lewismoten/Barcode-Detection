@@ -101,11 +101,15 @@ const handleWindowLoad = () => {
   const video = document.getElementById('video');
   video.addEventListener('play', () => {
     addError('Video is playing');
-    frameId = window.requestAnimationFrame(drawVideo);
-    intervalId = window.setInterval(scanVideo, 1000 / 60);
   });
   video.addEventListener('canplaythrough', () => {
     addError('Video can now play.');
+    if(frameId !== undefined) {
+      frameId = window.requestAnimationFrame(drawVideo);
+    }
+    if(intervalId !== undefined) {
+      intervalId = window.setInterval(scanVideo, 1000 / 60);
+    }
     video.play();
   })
   video.addEventListener('pause', () => {
