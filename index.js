@@ -20,6 +20,29 @@ let detectResultCount = 0;
 let frameId;
 let intervalId;
 
+const videoEvents = [
+  'audioprocess',
+  'canplay',
+  'canplaythrough',
+  'complete',
+  'durationchange',
+  'emptied',
+  'ended',
+  'loadeddata',
+  'loadedmetadata',
+  'loadstart',
+  'playing',
+  'progress',
+  'ratechange',
+  'seeked',
+  'seeking',
+  'stalled',
+  'suspended',
+  // 'timeupdate',
+  'volumechange',
+  'waiting'
+];
+
 const formatMap = {
   qr_code: 'QR Code',
   aztec: "Aztec",
@@ -85,15 +108,15 @@ const handleWindowLoad = () => {
   });
   video.addEventListener('error', e => {
     addError(`Video Error: ${e}`);
-  })
-  ['audioprocess', 'canplay', 'canplaythrough', 'complete', 'durationchange',
-    'emptied', 'ended', 'loadeddata', 'loadedmetadata', 'loadstart', 'playing', 
-    'progress', 'ratechange', 'seeked', 'seeking', 'stalled', 'suspended',
-    'timeupdate', 'volumechange', 'waiting'
-  ].forEach(eventName => {
+  });
+  video.addEventListener('timeupdate', e => {
+    addError(`Video Timeupdate: ${video.currentTime}`);
+  });
+  videoEvents.forEach(eventName => {
+    addError(`add listener: ${eventName}`)
     video.addEventListener(eventName, () => {
       addError(`Video Event: ${eventName}`);
-    })
+    });
   });
   addError('requesting stream');
   navigator.mediaDevices.getUserMedia({ 
