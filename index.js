@@ -16,6 +16,7 @@ let id = 0;
 let errors = [];
 let intervalCount = 0;
 let detectCount = 0;
+let detectResultCount = 0;
 let frameId;
 let intervalId;
 
@@ -113,9 +114,11 @@ const displayBarcode = id => {
   }).catch(e => addError(`Failed to select record: ${e}`));
 }
 const scanImage = (source) => {
+  detectCount++;
+  document.getElementById('detect-count').innerText = detectCount;
   detector.detect(source).then(codes => {
-    detectCount++;
-    document.getElementById('detect-count').innerText = detectCount;
+    detectResultCount++;
+    document.getElementById('detect-result-count').innerText = detectResultCount;
     barcodes = codes;
     barcodes.forEach(({ format, cornerPoints, rawValue, boundingBox }) => {
       stateManager.hasValue('rawValue', rawValue).then(hasValue => {
