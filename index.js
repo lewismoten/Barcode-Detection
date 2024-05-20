@@ -108,7 +108,8 @@ const handleWindowLoad = () => {
     video: {
       width: { ideal: 320 },
       height: { ideal: 200 },
-      frameRate: { ideal: 15 }
+      frameRate: { ideal: 15 },
+      facingMode: 'environment' // or user/environment
     } 
   }).then((stream) => {
     addError('Loading the stream');
