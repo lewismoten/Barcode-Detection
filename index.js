@@ -153,7 +153,7 @@ const startTimers = () => {
     frameId = window.requestAnimationFrame(drawVideo);
   }
   if(intervalId === undefined) {
-    console.log("starting interval");
+    addError("starting interval");
     readyToDetect = true;
     intervalId = window.setInterval(scanVideo, 100);
   }
