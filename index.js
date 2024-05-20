@@ -83,7 +83,18 @@ const handleWindowLoad = () => {
     frameId = undefined;
     intervalId = undefined;
   });
-
+  video.addEventListener('error', e => {
+    addError(`Video Error: ${e}`);
+  })
+  ['audioprocess', 'canplay', 'canplaythrough', 'complete', 'durationchange',
+    'emptied', 'ended', 'loadeddata', 'loadedmetadata', 'loadstart', 'playing', 
+    'progress', 'ratechange', 'seeked', 'seeking', 'stalled', 'suspended',
+    'timeupdate', 'volumechange', 'waiting'
+  ].forEach(eventName => {
+    video.addEventListener(eventName, () => {
+      addError(`Video Event: ${eventName}`);
+    })
+  });
   addError('requesting stream');
   navigator.mediaDevices.getUserMedia({ 
     video: {
@@ -157,8 +168,8 @@ const addError = err => {
   e1++;
   if(e1 === 20) console.error(err);
   errors.unshift(err);
-  if(errors.length > 5) {
-    errors.splice(5);
+  if(errors.length > 20) {
+    errors.splice(20);
   }
   const container = document.getElementById('errors');
   container.innerHTML = '';
