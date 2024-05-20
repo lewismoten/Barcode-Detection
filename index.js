@@ -29,11 +29,11 @@ const formatMap = {
 };
 
 const handleWindowLoad = () => {
-  stateManager.nextId().then(nextId => id = nextId);
+  stateManager.nextId().then(nextId => id = nextId).catch(e => addError(`Failed to get next id: ${e}`));
 
   BarcodeDetector.getSupportedFormats().then(supportedFormats => {
     detector = new BarcodeDetector({ formats: supportedFormats })
-  });
+  }).catch(e => addError(`Failed to get supported barcode formats: ${e}`));
 
   document.getElementById('chooseImage').addEventListener('click', () => {
     document.getElementById('file').click();
@@ -52,12 +52,12 @@ const handleWindowLoad = () => {
   document.getElementById('barcode-info-copy').addEventListener('click', () => {
     stateManager.selectOne(selectedId).then(barcode => {
       navigator.clipboard.writeText(barcode.rawValue);
-    });
+    }).catch(e => addError(`Failed to select record: ${e}`));
   });
   document.getElementById('barcode-info-delete').addEventListener('click', () => {
     stateManager.deleteOne(selectedId).then(() => {
       document.getElementById('barcode-info-back').click();
-    });
+    }).catch(e => addError(`Failed to delete record: ${e}`));
   });
 
   navigator.mediaDevices.getUserMedia({ 
@@ -90,13 +90,13 @@ const displayBarcode = id => {
       blobToDataUrl(imageBlob).then(url => {
         image.src = url;
         URL.revokeObjectURL(url);
-      });
+      }).catch(e => addError(`Failed to convert blob to data url: ${e}`));
     } else {
       delete image.src;
     }
     document.getElementById('barcode-info-format').innerText = formatMap[format] ?? format;
     document.getElementById('raw-data').innerText = rawValue;
-  });
+  }).catch(e => addError(`Failed to select record: ${e}`));
 }
 const scanImage = (source) => {
   detector.detect(source).then(codes => {
@@ -113,15 +113,18 @@ const scanImage = (source) => {
           unwarpClipAsURL(source, cornerPoints, {width: 64, height: 200}).then(imageSrc => {
             const imageBlob = dataUrlToBlob(imageSrc);
             stateManager.updateOne(id, {imageBlob}).then(showDetected);
-          });
-        });
-      })
+          }).catch(e => addError(`Failed to unwarp clip: ${e}`));
+        }).catch(e => addError(`Failed to insert: ${e}`));
+      }).catch(e => addError(`Failed to check if value exists: ${e}`))
     });
-  }).catch(addError).finally(() => {
+  }).catch(e => addError(`Failed to detect: ${e}`)).finally(() => {
     readyToDetect = true;
   });
 }
+let e1 = 0;
 const addError = err => {
+  e1++;
+  if(e1 === 20) console.error(err);
   errors.unshift(err);
   if(errors.length > 5) {
     errors.splice(5);
@@ -160,6 +163,8 @@ const showDetected = () => {
         blobToDataUrl(imageBlob).then(url => {
           image.src = url;
           // URL.revokeObjectURL(url);
+        }).catch(e => {
+          addError(`Failed to convert blob to data url: ${e}`)
         });
       }
       const span = document.createElement('span');
@@ -168,7 +173,7 @@ const showDetected = () => {
   
       div.append(span);
     })
-  });
+  }).catch(e => addError(`Failed to selectAll: ${e}`));
 
 }
 const drawVideo = () => {
