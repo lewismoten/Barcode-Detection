@@ -118,7 +118,7 @@ const handleWindowLoad = () => {
     addError(`Video Timeupdate: ${video.currentTime}`);
   });
   videoEvents.forEach(eventName => {
-    addError(`add listener: ${eventName}`)
+    ///addError(`add listener: ${eventName}`)
     video.addEventListener(eventName, () => {
       addError(`Video Event: ${eventName}`);
     });

@@ -81,3 +81,6 @@ body {
 #barcode-info-image {
   border: 10px solid white;
 }
+#errors {
+  color: red;
+}
