@@ -156,9 +156,9 @@ const addError = err => {
   }
   const container = document.getElementById('errors');
   container.innerHTML = '';
-  errors.forEach(error => {
+  errors.forEach((error, i) => {
     const item = document.createElement('div');
-    item.innerText = error;
+    item.innerText = `Error ${i}: ${error}`;
     container.prepend(item);
   });
 }
