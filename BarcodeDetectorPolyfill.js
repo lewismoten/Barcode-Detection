@@ -67,8 +67,9 @@ if(!NATIVE) {
           }
           // BUG: See https://github.com/zxing-js/library/issues/525
           image.videoWidth = 0;
-          return reader.decodeFromImage(image).then(({format, resultPoints, text}) => {
+          return reader.decodeFromImage(image).then(({format, resultPoints, text, rawBytes}) => {
             let codeFormat = format;
+            // data
             Object.entries(formatReaderMap).forEach(([key, value]) => {
               if(format === value) codeFormat = key;
             });

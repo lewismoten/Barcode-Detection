@@ -210,9 +210,14 @@ const showDetected = () => {
 
 }
 const scalePoints = ({x, y}) => {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('scanned-video');
   const ratioX = canvas.width / video.width;
   const ratioY = canvas.height / video.height;
-  ({x: x * ratioX, y: y * ratioY})
+  return {
+    x: x * ratioX,
+    y: y * ratioY
+  };
 };
 
 const drawVideo = () => {
