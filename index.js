@@ -113,6 +113,18 @@ const handleWindowLoad = () => {
   }).then((stream) => {
     addError('Loading the stream');
     video.srcObject = stream;
+    // onactive
+    // onaddtrack
+    // oninactive
+    // onremovetrack
+    // console.log(stream.getTracks());
+    stream.getTracks().forEach((track, i) => {
+      addError(`Track ${i}: ${track.label} (${track.kind}) ${track.readyState} enabled: ${track.enabled}`);
+      // track.onended
+      // track.onmute
+      // track.onunmute
+      // track.oncapturehandlechange
+    })
     addError('Stream assigned to video element');
   }).catch(e => addError(`Unable to getUserMedia: ${e}`));
 
