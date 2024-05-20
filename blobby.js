@@ -28,6 +28,15 @@ export const imageToImageData = image => {
   return ctx.getImageData(0, 0, canvas.width, canvas.height);
 }
 
+export const imageToDataURL = image => {
+  const canvas = document.createElement('canvas');
+  canvas.width = image.width;
+  canvas.height = image.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL();
+}
+
 export const imageToImage = image => {
   return new Promise((resolve, reject) => {
     const { width, height} = image;
@@ -37,10 +46,11 @@ export const imageToImage = image => {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(image, 0, 0, width, height);
     const img = new Image(width, height);
-    img.addEventListener('load', () => {
-
+    const handleLoad = () => {
+      img.removeEventListener('load', handleLoad);
       resolve(img);
-    })
+    };
+    img.addEventListener('load', handleLoad)
     img.src = canvas.toDataURL();
   });
 }

@@ -2,7 +2,8 @@ import unwarpClipAsURL from './unwarpClipAsURL.js';
 import * as stateManager from './stateManager.js';
 import {
   dataUrlToBlob,
-  blobToDataUrl
+  blobToDataUrl,
+  imageToDataURL
 } from './blobby.js';
 import './BarcodeDetectorPolyfill.js';
 
@@ -158,7 +159,7 @@ const showDetected = () => {
         imageContainer.append(image);
         blobToDataUrl(imageBlob).then(url => {
           image.src = url;
-          URL.revokeObjectURL(url);
+          // URL.revokeObjectURL(url);
         });
       }
       const span = document.createElement('span');
@@ -208,10 +209,12 @@ const handleImageChange = file => {
   const reader = new FileReader();
   reader.onload = ({target: { result }}) => {
     const image = new Image();
-    image.src = result;
-    image.onload = () => {
+    const handleLoad = () => {
+      image.removeEventListener('load', handleLoad);
       scanImage(image);
     }
+    image.addEventListener('load', handleLoad);
+    image.src = result;
   }
   reader.readAsDataURL(file);
 }
