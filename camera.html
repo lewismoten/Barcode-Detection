@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Barcode Detector</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <video id="video" width="320" height="200" autoplay></video>
+    <script>
+      navigator.mediaDevices.getUserMedia({ 
+        video: {
+          width: { ideal: 320 },
+          height: { ideal: 200 },
+          frameRate: { ideal: 15 },
+          facingMode: 'environment' // or user/environment
+        } 
+      }).then((stream) => {
+        video.srcObject = stream;
+      });
+    </script>
+  </body>
+</html>
