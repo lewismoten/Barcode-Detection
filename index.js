@@ -155,10 +155,7 @@ const startTimers = () => {
   if(intervalId === undefined) {
     addError("starting interval");
     readyToDetect = true;
-    intervalId = window.setInterval(() => {
-      addError("Interval");
-      scanVideo();
-    }, 100);
+    intervalId = window.setInterval(scanVideo, 100);
     scanVideo();
   }
 }
@@ -240,7 +237,7 @@ const scanVideo = () => {
   intervalCount++;
   document.getElementById('interval-count').innerText = intervalCount;
   const video = document.getElementById('video');
-  if(readyToDetect && video && !video.paused && video.srcObject) {
+  if(readyToDetect) {
     readyToDetect = false;
     scanImage(video);
   }
