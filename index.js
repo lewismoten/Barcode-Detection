@@ -34,8 +34,13 @@ const formatMap = {
 };
 
 const handleWindowLoad = () => {
-  stateManager.nextId().then(nextId => id = nextId).catch(e => addError(`Failed to get next id: ${e}`));
-
+  addError('window load');
+  stateManager.nextId()
+    .then(nextId => id = nextId)
+    .catch(e => addError(`Failed to get next id: ${e}`))
+    .finally(() => {
+      addError(`next id: ${id}`);
+    });
   BarcodeDetector.getSupportedFormats().then(supportedFormats => {
     detector = new BarcodeDetector({ formats: supportedFormats })
   }).catch(e => addError(`Failed to get supported barcode formats: ${e}`));
