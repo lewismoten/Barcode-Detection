@@ -65,6 +65,8 @@ if(!NATIVE) {
             reject('Image is undefined.');
             return;
           }
+          // BUG: See https://github.com/zxing-js/library/issues/525
+          image.videoWidth = 0;
           return reader.decodeFromImage(image).then(({format, resultPoints, text}) => {
             let codeFormat = format;
             Object.entries(formatReaderMap).forEach(([key, value]) => {
