@@ -10,6 +10,9 @@ body {
   padding: 10;
   font-family: sans-serif;
 }
+#video {
+  background-color: purple;
+}
 .video-feed {
   width: 320;
   height: 200;
