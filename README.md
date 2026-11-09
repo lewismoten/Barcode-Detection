@@ -1,5 +1,9 @@
 # Barcode Detection
 
+An experiment with detecting barcodes and QR codes from a camera in the browser. It includes a `BarcodeDetector` polyfill and uses OpenCV.js to find and straighten the code in the video frame.
+
+Live demo: <https://lewismoten.github.io/Barcode-Detection/>
+
 # Local Dev
 
 You'll need to run Run a web server in the local directory with a signed certificate. Here is an example for PHP.
