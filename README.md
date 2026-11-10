@@ -1,3 +1,5 @@
+![Barcode-Detection: Camera scanning barcodes and QR codes](docs/images/social-preview.png)
+
 # Barcode Detection
 
 An experiment with detecting barcodes and QR codes from a camera in the browser. It includes a `BarcodeDetector` polyfill and uses OpenCV.js to find and straighten the code in the video frame.
